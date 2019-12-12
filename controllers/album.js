@@ -29,6 +29,7 @@ function getAlbum(req, res){
     });
 }
 
+//http://localhost:3977/api/albums/
 function getAlbums(req, res){
 
     var artistId = req.params.artist;
@@ -82,6 +83,7 @@ function saveAlbum(req, res){
     });
 }
 
+//http://localhost:3977/api/album/5dbc9323f1879131884e8a9b
 function updateAlbum(req,res){
     var albumId = req.params.id;
     var update = req.body;
@@ -102,21 +104,21 @@ function updateAlbum(req,res){
 function deleteAlbum(req,res){
     var albumId = req.params.id;
     
-    Album.findByIdAndRemove(albumId, (err, albumRemove) => {
+    Album.findByIdAndRemove(albumId, (err, albumRemoved) => {
         if(err){
             res.status(500).send({message: 'Error al eliminar el album '});
         }else{
-            if(!albumRemove){
+            if(!albumRemoved){
                 res.status(404).send({message: 'Error album no ha sido eliminado '});
             }else{
-                Song.find(album, (err, albumRemove) => {
+                Song.find({album: albumRemoved._id}).remove((err, songRemoved) => {
                     if(err){
-                        res.status(500).send({message: 'Error al eliminar el album '});
+                        res.status(500).send({message: 'Error al eliminar la cancion'});
                     }else{
-                        if(!albumRemove){
-                            res.status(404).send({message: 'Error album no ha sido eliminado '});
+                        if(!songRemoved){
+                            res.status(404).send({message: 'Error la cancion no ha sido eliminada '});
                         }else{
-                            res.status(200).send({album: albumRemove});
+                            res.status(200).send({album: albumRemoved});
                         }
                     }
                 });
@@ -125,6 +127,53 @@ function deleteAlbum(req,res){
     });
 }
 
+function uploadImage(req, res){
+    var albumId = req.params.id;
+    var file_name = 'No Subido...';
+
+    if(req.files){
+        var file_path = req.files.image.path;
+        var file_split = file_path.split('\\');
+        var file_name = file_split[2];
+
+        var ext_split = file_name.split('\.');
+        var file_ext = ext_split[1];
+
+        if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'gif'){
+            //Actaulizamos la imagen en la bd
+            Album.findByIdAndUpdate(albumId, {image: file_name}, (err, albumUpdated) => {
+                if(!albumUpdated){
+                    res.status(404).send({message :'No se ha podido actualizar el album'});
+                }else{
+                    res.status(200).send({album : albumUpdated});
+                }
+            });
+
+        }else{
+            res.status(500).send({message :'Extension de la imagen no es correcta'});
+        }
+
+    }else{
+        res.status(200).send({message: 'No has subido ninguna imagen...'});
+    }
+}
+
+function getImageFile(req, res){
+    var imageFile = req.params.imageFile;
+    var path_file = './uploads/albums/'+imageFile;
+
+    //Comprobar si existe el fichero en el servidor
+    fs.exists(path_file, function(exists){
+        if(exists){
+            res.sendFile(path.resolve(path_file));
+            //nos envia el fichero a la vista
+        }else{
+            res.status(200).send({message :'No existe la imagen....'});
+        }
+    });
+}
+
+
 
 
 
@@ -132,7 +181,10 @@ module.exports = {
     getAlbum,
     getAlbums,
     saveAlbum,
-    updateAlbum
+    updateAlbum,
+    deleteAlbum,
+    uploadImage,
+    getImageFile
     
 };
 

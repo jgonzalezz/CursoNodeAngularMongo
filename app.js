@@ -13,8 +13,7 @@ var app = express();
 var user_routes = require('./routes/user');
 var artist_routes = require('./routes/artist');
 var album_routes = require('./routes/album');
-
-
+var song_routes = require('./routes/song');
 
 
 //configurar body parser
@@ -23,13 +22,28 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 
-//configurar cabeceras http
+//configurar cabeceras http / middelware para cada peticion
+//https://developer.mozilla.org/es/docs/Web/HTTP/Headers
+
+app.use((req,res, next) =>{
+    res.header('Acces-Control-Allow-Origin','*'); //permitimos el acceso a nuestra api de todos los dominios
+    res.header('Acces-Control-Allow-Headers','Authorization, X-API-KEY, Origin, X-Requestd-With, Content-Type, Accept, Acces-Control-Allow-Request-Method ');//ajax
+    res.header('Acces-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS');//Permitir metodos http
+    res.header('Allow','GET,POST,PUT,DELETE,OPTIONS');
+
+    next();//sale del midelware y continua con el flujo normal de ejecucion
+
+});
 
 
-//carga de rutas base "midelware"
+
+
+//carga de rutas base al "midelware" de expres /api se puede cambiar por cualquier nombre
 app.use('/api', user_routes);
 app.use('/api', artist_routes);
 app.use('/api', album_routes);
+app.use('/api', song_routes);
+
 
 
 
