@@ -24,16 +24,15 @@ app.use(bodyParser.json());
 
 //configurar cabeceras http / middelware para cada peticion
 //https://developer.mozilla.org/es/docs/Web/HTTP/Headers
-
-app.use((req,res, next) =>{
-    res.header('Acces-Control-Allow-Origin','*'); //permitimos el acceso a nuestra api de todos los dominios
-    res.header('Acces-Control-Allow-Headers','Authorization, X-API-KEY, Origin, X-Requestd-With, Content-Type, Accept, Acces-Control-Allow-Request-Method ');//ajax
-    res.header('Acces-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS');//Permitir metodos http
-    res.header('Allow','GET,POST,PUT,DELETE,OPTIONS');
-
-    next();//sale del midelware y continua con el flujo normal de ejecucion
-
+// Configurar cabeceras y cors
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
 });
+
 
 
 
